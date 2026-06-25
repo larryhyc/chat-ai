@@ -11,7 +11,10 @@ import { useChangeModelStore } from '@/store/useChangeModle';
 
 const providerList = [
   { provider: 'Google', models: ['Gemini-2.5Pro', 'Gemini-2.5Flash'] },
-  { provider: 'Z-AI', models: ['GLM-4.6-Flash', 'GLM-5'] },
+  {
+    provider: 'Z-AI',
+    models: ['GLM-4.7', 'GLM-5', 'GLM-4-FlashX-250414'],
+  },
 ];
 
 const ModelSelect = () => {
