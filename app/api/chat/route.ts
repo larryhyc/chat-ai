@@ -1,54 +1,76 @@
-import { streamText, UIMessage, convertToModelMessages } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 // import { google } from '@ai-sdk/google';
-// import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+// import { generateText } from 'ai';
 // import { createDeepSeek } from '@ai-sdk/deepseek';
 
 export async function POST(req: Request) {
+  // try {
+
+  // }catch
   // console.log(await req.json());
   // const { messages }: { messages: UIMessage[] } = await req.json();
   const body = await req.json();
-  console.log('完整请求体:', body);
+  // console.log('完整请求体:', body);
   const { messages } = body;
 
-  // 从第一条用户消息的 metadata 中提取 provider 和 model
-  // console.log('messages 类型:', typeof messages);
-  // console.log('messages 是数组吗:', Array.isArray(messages));
-  // console.log('第一条消息:', messages[0]);
-  const provider = messages[0]?.metadata?.provider;
-  const model = messages[0]?.metadata?.model;
+  const provider = messages[messages.length - 1]?.metadata?.provider;
+  const model = messages[messages.length - 1]?.metadata?.model.toLowerCase();
 
-  console.log('提取的 provider:', provider);
-  console.log('提取的 model:', model);
-
-  const modelMap: { [key: string]: string } = {
-    'Gemini-2.5Pro': 'gemini-2.5pro',
-    'Gemini-2.5Flash': 'gemini-2.5flash',
-    'GLM-4.7': 'glm-4.7',
-    'GLM-5': 'glm-5',
-    'GLM-4-FlashX-250414': 'glm-4-flashx-250414',
-  };
-
-  // 使用映射后的模型名称
-  // const actualModel = modelMap[model as keyof typeof modelMap] || model;
-
-  // console.log('前端模型名称:', model);
-  // console.log('映射后的模型名称:', modelMap[model]);
-
-  // const gemini = createOpenAICompatible({
-  //   apiKey: process.env.GEMINI_API_KEY ?? '',
+  // messages.map((item) => {
+  //   console.log(item);
   // });
 
-  const lmmprovider = createOpenAICompatible({
-    name: modelMap[model],
-    apiKey: process.env.LMMPROVIDER_API_KEY,
-    baseURL: 'https://open.bigmodel.cn/api/coding/paas/v4',
-  });
+  let LLM;
 
-  const result = streamText({
-    model: lmmprovider(modelMap[model]),
-    messages: await convertToModelMessages(messages),
-  });
+  // const baseURL = {
+  //   ZAI: 'https://open.bigmodel.cn/api/coding/paas/v4',
+  //   XIAOMI: 'https://api.xiaomimimo.com/v1',
+  // };
 
-  return result.toUIMessageStreamResponse();
+  switch (provider) {
+    case 'Google':
+      console.log('触发google');
+      LLM = createOpenAICompatible({
+        name: model,
+        apiKey: process.env.GOOGLE_GIMINI_AI_API_KEY,
+        baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
+      });
+      break;
+    case 'ZAI':
+      console.log('触发zai');
+      LLM = createOpenAICompatible({
+        name: model,
+        apiKey: process.env.ZAI_AI_API_KEY,
+        baseURL: 'https://open.bigmodel.cn/api/coding/paas/v4',
+      });
+      break;
+    case 'Xiaomi':
+      console.log('触发Xiaomi');
+      LLM = createOpenAICompatible({
+        name: model,
+        apiKey: process.env.XIAOMI_AI_API_KEY,
+        baseURL: 'https://api.xiaomimimo.com/v1',
+      });
+  }
+
+  try {
+    // if (LLM!) {
+    //   throw new Error(`未找到匹配的供应商 [${provider}] 配置`);
+    // }
+
+    const result = streamText({
+      model: LLM!(model),
+      messages: await convertToModelMessages(messages),
+    });
+
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error('后端捕获大模型异常:', error);
+    const clientMessage = '大模型服务暂时不可用，可尝试切换其他模型。';
+    return new Response(JSON.stringify({ messages: clientMessage }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }

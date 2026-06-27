@@ -10,10 +10,17 @@ import {
 import { useChangeModelStore } from '@/store/useChangeModle';
 
 const providerList = [
-  { provider: 'Google', models: ['Gemini-2.5Pro', 'Gemini-2.5Flash'] },
   {
-    provider: 'Z-AI',
-    models: ['GLM-4.7', 'GLM-5', 'GLM-4-FlashX-250414'],
+    provider: 'Google',
+    models: ['Gemini-2.5Pro', 'Gemini-2.5Flash'],
+  },
+  {
+    provider: 'ZAI',
+    models: ['GLM-4.7', 'GLM-5', 'GLM-4-FlashX'],
+  },
+  {
+    provider: 'Xiaomi',
+    models: ['MIMO-v2.5-Pro', 'MIMO-v2.5'],
   },
 ];
 

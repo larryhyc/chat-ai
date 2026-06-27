@@ -11,8 +11,8 @@ interface ChangeModelState {
 
 export const useChangeModelStore = create<ChangeModelState>()(
   devtools((set) => ({
-    provider: 'Z-AI',
-    model: 'GLM-4-FlashX-250414',
+    provider: 'ZAI',
+    model: 'GLM-4-FlashX',
     setProvider: (provider) => set({ provider: provider }),
     setModel: (model) => set({ model: model }),
   })),

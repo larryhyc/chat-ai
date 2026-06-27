@@ -57,7 +57,7 @@ const ChatInput = ({ placeholder }: ChatInputProps) => {
   };
 
   return (
-    <div className="relative flex items-end w-full max-w-xl bg-transparent p-2 transition-all">
+    <div className="relative flex items-end w-full bg-transparent p-2 transition-all">
       {/* textarea 输入框 */}
       <textarea
         ref={textareaRef}
