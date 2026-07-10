@@ -4,28 +4,22 @@ import {
   Message,
   MessageContent,
   MessageResponse,
-  // MessageToolbar,
-  // MessageBranch,
-  // MessageBranchContent,
-  // MessageBranchSelector,
-  // MessageBranchPrevious,
-  // MessageBranchPage,
-  // MessageBranchNext,
 } from '@/components/chatMessage';
 import type { UIMessage } from 'ai';
 
 interface MessageInfoProps {
   messages: UIMessage[];
+  error?: string;
 }
 
-const MessageInfo = ({ messages }: MessageInfoProps) => {
-  if (!messages || messages.length === 0) {
+const MessageInfo = ({ messages, error }: MessageInfoProps) => {
+  if ((!messages || messages.length === 0) && !error) {
     return null;
   }
 
   return (
     <>
-      {messages.map((message) => {
+      {messages?.map((message) => {
         // 从 parts 中提取文本内容
         const textContent =
           message.parts
@@ -39,7 +33,7 @@ const MessageInfo = ({ messages }: MessageInfoProps) => {
         if (!textContent) return null;
 
         return (
-          <Message from={message.role} key={message.id} className='mb-6'>
+          <Message from={message.role} key={message.id} className="mb-6">
             <MessageContent>
               {message.role === 'assistant' ? (
                 <MessageResponse className="mb-3">
@@ -52,6 +46,15 @@ const MessageInfo = ({ messages }: MessageInfoProps) => {
           </Message>
         );
       })}
+      {error && (
+        <Message from="assistant" className="mb-6">
+          <MessageContent>
+            <MessageResponse className="mb-3 text-red-500">
+              {error}
+            </MessageResponse>
+          </MessageContent>
+        </Message>
+      )}
     </>
   );
 };

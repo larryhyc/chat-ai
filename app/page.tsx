@@ -6,19 +6,23 @@ import { useChatStore } from '@/store/useChatStore';
 import ModelSelect from '@/components/modleSelect';
 import { useChangeModelStore } from '@/store/useChangeModle';
 import MessageInfo from '@/components/messageInfo';
+import ProviderKeyUp from '@/components/providerKeyUP';
 export default function Chat() {
-  const { messages, sendMessage } = useChat();
+  // ai-sdk/react 提供的 useChat 钩子，用于获取聊天相关的状态和方法
+  const { messages, sendMessage, error } = useChat();
+
+  // 用户输入的信息
   const { message, setMessage } = useChatStore();
   const { model, provider } = useChangeModelStore();
+  const errorMessage = error?.message
 
   return (
     <div className="flex flex-col w-full h-full max-w-5xl mx-auto overflow-hidden">
       {/* 消息区域 - 可滚动，底部留出空间给输入框 */}
       <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4 pt-6 pb-36 max-h-14/17">
-        <MessageInfo messages={messages} />
+        <MessageInfo messages={messages} error={errorMessage} />
       </div>
-      {/* <MessageInfo messages={messages} /> */}
-      {/* <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r"></div> */}
+
       {/* 输入区域  */}
       <form
         onSubmit={(e) => {
@@ -34,7 +38,10 @@ export default function Chat() {
           bg-background/80 backdrop-blur-sm"
       >
         <ChatInput placeholder="请输入消息，按 Enter 发送, Shift + Enter 换行" />
-        <div className="pt-3 px-4 flex flex-row justify-end">
+        <div className="pt-3 px-4 flex flex-row justify-end gap-3">
+          <div>
+            <ProviderKeyUp />
+          </div>
           <div>
             <ModelSelect />
           </div>
