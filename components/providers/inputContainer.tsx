@@ -1,4 +1,4 @@
-import ChatInput from './chatInput';
+import ChatInput from '../ui/chatInput';
 
 const InputContainer = () => {
   return (

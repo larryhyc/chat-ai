@@ -1,6 +1,6 @@
 'use client';
 
-import ChatInput from '@/components/chatInput';
+import ChatInput from '@/components/ui/chatInput';
 import { useChat } from '@ai-sdk/react';
 import { useChatStore } from '@/store/useChatStore';
 import ModelSelect from '@/components/modleSelect';
@@ -14,7 +14,9 @@ export default function Chat() {
   // 用户输入的信息
   const { message, setMessage } = useChatStore();
   const { model, provider } = useChangeModelStore();
-  const errorMessage = error?.message
+  const errorMessage = error?.message;
+
+  // console.log('messages', messages);
 
   return (
     <div className="flex flex-col w-full h-full max-w-5xl mx-auto overflow-hidden">

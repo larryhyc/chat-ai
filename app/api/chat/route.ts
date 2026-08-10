@@ -1,57 +1,79 @@
-import { streamText, convertToModelMessages } from 'ai';
-// import { google } from '@ai-sdk/google';
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { NextResponse } from 'next/server';
-// import { generateText } from 'ai';
-// import { createDeepSeek } from '@ai-sdk/deepseek';
+// import { initChatModel } from 'langchain/chat_models/universal';
+import { toBaseMessages, toUIMessageStream } from '@ai-sdk/langchain';
+// import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import { ChatOpenAI } from '@langchain/openai';
+import { NextRequest, NextResponse } from 'next/server';
+import { createUIMessageStreamResponse } from 'ai';
 
-export async function POST(req: Request) {
-
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    // console.log('完整请求体:', body);
-    const { messages } = body;
+    const { messages } = await req.json();
 
     const provider = messages[messages.length - 1]?.metadata?.provider;
-    const model = messages[messages.length - 1]?.metadata?.model.toLowerCase();
 
-    let LLM;
+    const name = messages[messages.length - 1]?.metadata?.model?.toLowerCase();
+    // console.log('provider:', provider, 'model:', name);
 
-    switch (provider) {
-      case 'Google':
-        // console.log('触发google');
-        LLM = createOpenAICompatible({
-          name: model,
-          apiKey: process.env.GOOGLE_GIMINI_AI_API_KEY,
-          baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
-        });
-        break;
-      case 'ZAI':
-        // console.log('触发zai');
-        LLM = createOpenAICompatible({
-          name: model,
-          apiKey: process.env.ZAI_AI_API_KEY,
-          baseURL: 'https://open.bigmodel.cn/api/coding/paas/v4',
-        });
-        break;
-      case 'Xiaomi':
-        // console.log('触发Xiaomi');
-        LLM = createOpenAICompatible({
-          name: model,
-          apiKey: process.env.XIAOMI_AI_API_KEY,
-          baseURL: 'https://api.xiaomimimo.com/v1',
-        });
+    const providerConfig = {
+      ZAI: 'ai_config_zai',
+      Xiaomi: 'ai_config_xiaomi',
+      Google: 'ai_config_google',
+    };
+
+    // 支持多端不能写死，写个配置对象
+    const rawConfigCookie = req.cookies.get(
+      providerConfig[provider as keyof typeof providerConfig],
+    )?.value;
+
+    console.log('rawConfigCookie:', rawConfigCookie);
+
+    let apiKey = '';
+    let baseUrl = '';
+
+    if (rawConfigCookie) {
+      try {
+        // 如果存储时进行了 URI 编码，先 decodeURIComponent 再 JSON.parse
+        const parsedConfig = JSON.parse(decodeURIComponent(rawConfigCookie));
+        apiKey = parsedConfig.apiKey;
+        baseUrl = parsedConfig.baseUrl;
+      } catch (e) {
+        console.error('Cookie 解析 JSON 失败:', e);
+        return new NextResponse(
+          JSON.stringify({ error: '提供商配置解析失败，请检查提供商配置' }),
+          {
+            status: 400,
+          },
+        );
+      }
+    } else {
+      return new NextResponse(JSON.stringify({ error: '缺少提供商配置' }), {
+        status: 400,
+      });
     }
+    // 把sdk格式的消息转换为langchain格式
+    const langchainMessages = await toBaseMessages(messages);
 
-
-    const result = streamText({
-      model: LLM!(model),
-      messages: await convertToModelMessages(messages),
+    const model = new ChatOpenAI({
+      modelName: name,
+      temperature: 0.7,
+      apiKey: apiKey,
+      configuration: {
+        baseURL: baseUrl,
+      },
     });
 
-    return result.toUIMessageStreamResponse();
-  } catch (error) { 
-    // console.error('Error occurred:', error);
-    return new NextResponse(JSON.stringify({error:'网络请求失败，请检查网络连接或稍后重试'}), { status: 500 });
+    // 使用流式调用模型
+    const stream = await model.stream(langchainMessages);
+
+    // 回答完成后转换成为ai-sdk格式返回前端
+    return createUIMessageStreamResponse({
+      stream: toUIMessageStream(stream),
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    return new NextResponse(
+      JSON.stringify({ error: '网络请求失败，请检查网络连接或稍后重试' }),
+      { status: 500 },
+    );
   }
 }
