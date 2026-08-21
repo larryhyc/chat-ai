@@ -4,6 +4,7 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { Label } from '@/components/ui/label';
 import { SheetDescription } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
+import { SquareArrowOutUpRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { setCookie } from '@/lib/cookies';
@@ -14,7 +15,7 @@ interface AIConfig {
   baseUrl: string;
 }
 
-const XiaomiProviderKey = () => {
+const ZAIProviderKey = () => {
   const [formData, setFormData] = useState<AIConfig>({
     apiKey: '',
     baseUrl: '',
@@ -22,7 +23,7 @@ const XiaomiProviderKey = () => {
 
   // 初始化表单：保持从 localStorage 恢复用户已填写的配置
   useEffect(() => {
-    const saved = localStorage.getItem('Xiaomi_config');
+    const saved = localStorage.getItem('ZAI_config');
     if (saved) {
       try {
         queueMicrotask(() => {
@@ -54,9 +55,9 @@ const XiaomiProviderKey = () => {
     }
 
     // 保存一份到 localStorage 方便 UI 状态回显
-    localStorage.setItem('Xiaomi_config', configStr);
+    localStorage.setItem('ZAI_config', configStr);
 
-    setCookie('ai_config_xiaomi', configStr, 30);
+    setCookie('ai_config_zai', configStr, 30);
 
     toast.success('配置保存成功');
   };
@@ -64,9 +65,9 @@ const XiaomiProviderKey = () => {
   return (
     <Field>
       <FieldLabel className="text-foreground flex flex-col justify-between items-start">
-        <Label>Xiaomi</Label>
+        <Label>ZAI</Label>
         <SheetDescription>
-          在 Xiaomi 或兼容 Xiaomi 格式的开放平台获取 API 密钥
+          在 ZAI 或兼容 ZAI 格式的开放平台获取 API 密钥
         </SheetDescription>
       </FieldLabel>
       <Input
@@ -99,4 +100,4 @@ const XiaomiProviderKey = () => {
   );
 };
 
-export default XiaomiProviderKey;
+export default ZAIProviderKey;

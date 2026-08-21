@@ -33,7 +33,7 @@ const ProviderKeyUp = () => {
         </FieldGroup>
         <FieldGroup>
           <FieldSet className="no-scrollbar overflow-y-auto flex flex-col gap-3 px-4">
-            {/* <XiaomiProviderKey /> */}
+            <XiaomiProviderKey />
           </FieldSet>
         </FieldGroup>
         <FieldGroup>

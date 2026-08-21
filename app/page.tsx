@@ -7,9 +7,12 @@ import ModelSelect from '@/components/modleSelect';
 import { useChangeModelStore } from '@/store/useChangeModle';
 import MessageInfo from '@/components/messageInfo';
 import ProviderKeyUp from '@/components/providerKeyUP';
+import { useIsMobile } from '@/hooks/use-mobile';
 export default function Chat() {
   // ai-sdk/react 提供的 useChat 钩子，用于获取聊天相关的状态和方法
   const { messages, sendMessage, error } = useChat();
+
+  const ismobile = useIsMobile();
 
   // 用户输入的信息
   const { message, setMessage } = useChatStore();
@@ -17,6 +20,7 @@ export default function Chat() {
   const errorMessage = error?.message;
 
   // console.log('messages', messages);
+  console.log('ismobile', ismobile);
 
   return (
     <div className="flex flex-col w-full h-full max-w-5xl mx-auto overflow-hidden">
@@ -41,9 +45,12 @@ export default function Chat() {
       >
         <ChatInput placeholder="请输入消息，按 Enter 发送, Shift + Enter 换行" />
         <div className="pt-3 px-4 flex flex-row justify-end gap-3">
-          <div>
-            <ProviderKeyUp />
-          </div>
+          {/* 检测是否是手机设备 */}
+          {ismobile && (
+            <div>
+              <ProviderKeyUp />
+            </div>
+          )}
           <div>
             <ModelSelect />
           </div>

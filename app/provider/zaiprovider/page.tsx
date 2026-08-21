@@ -1,8 +1,11 @@
+import ZaiProviderKey from '@/components/providers/zaiProviderKey';
+import { Sheet } from '@/components/ui/sheet';
+
 const ZaiProviderPage = () => {
   return (
-    <div>
-      <h1>Zai Provider</h1>
-    </div>
+    <Sheet>
+      <ZaiProviderKey />
+    </Sheet>
   );
 };
 

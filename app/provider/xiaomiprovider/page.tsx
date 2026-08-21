@@ -1,8 +1,12 @@
+import XiaomiProviderKey from '@/components/providers/xiaomiProviderKey';
+import { Sheet } from '@/components/ui/sheet';
+
+
 const XiaomiProviderPage = () => {
   return (
-    <div>
-      <h1>Xiaomi Provider</h1>
-    </div>
+    <Sheet>
+      <XiaomiProviderKey />
+    </Sheet>
   );
 };
 
